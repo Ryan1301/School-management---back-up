@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Staff Login</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F5F3EF;
+  --surface: #FFFFFF;
+  --border: #E0DDD8;
+  --text: #1A1A1A;
+  --muted: #7A7670;
+  --accent: #2B5BA8;
+  --danger: #C0392B;
+  --danger-bg: #FDECEA;
+  --font: 'IBM Plex Sans', sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-icon {
+  width: 32px; height: 32px;
+  background: var(--accent);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.header-icon svg { width: 18px; height: 18px; }
+.header-title { font-size: 15px; font-weight: 600; }
+.header-sub { font-size: 12px; color: var(--muted); font-family: var(--mono); margin-top: 1px; }
+
+.page {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.login-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 32px 28px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.card-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 14px;
+}
+
+label { font-size: 12px; font-weight: 500; color: var(--muted); }
+
+input {
+  font-family: var(--font);
+  font-size: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+
+input:focus {
+  border-color: var(--accent);
+  background: var(--surface);
+}
+
+.btn {
+  width: 100%;
+  padding: 11px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 6px;
+  transition: opacity 0.15s;
+}
+.btn:hover { opacity: 0.9; }
+.btn:active { opacity: 0.8; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.error-box {
+  background: var(--danger-bg);
+  color: var(--danger);
+  font-size: 13px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  margin-bottom: 14px;
+  border: 1px solid #f5c6c2;
+  display: none;
+}
+.error-box.show { display: block; }
+
+.footer-note {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.footer-note a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+.footer-note a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+      <polyline points="14 2 14 8 20 8"/>
+      <line x1="16" y1="13" x2="8" y2="13"/>
+      <line x1="16" y1="17" x2="8" y2="17"/>
+    </svg>
+  </div>
+  <div>
+    <div class="header-title">Fine Management</div>
+    <div class="header-sub">staff login</div>
+  </div>
+</div>
+
+<div class="page">
+  <div class="login-card">
+    <div class="card-label">Sign in to continue</div>
+
+    <div class="error-box" id="error-box">Incorrect email or password. Please try again.</div>
+
+    <div class="form-group">
+      <label for="inp-email">Email</label>
+      <input type="email" id="inp-email" placeholder="yourname@school.edu" autocomplete="email"/>
+    </div>
+
+    <div class="form-group">
+      <label for="inp-password">Password</label>
+      <input type="password" id="inp-password" placeholder="••••••••" autocomplete="current-password"/>
+    </div>
+
+    <button class="btn" id="login-btn" onclick="doLogin()">Sign In</button>
+
+    <div class="footer-note">
+      Student? <a href="index.html">Check your fine record here</a>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp }        from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  // ─── Firebase config ───────────────────────────────────────────────
+  // TODO: Replace with your actual Firebase project config
+  const firebaseConfig = {
+  apiKey: "AIzaSyAnWCY8qYh2877JTB1_5p6D8XxCHvWLbnk",
+  authDomain: "school-data-base-61e1d.firebaseapp.com",
+  projectId: "school-data-base-61e1d",
+  storageBucket: "school-data-base-61e1d.firebasestorage.app",
+  messagingSenderId: "829460545981",
+  appId: "1:829460545981:web:4fd764fb6fbbaee0a052d4"
+};
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  // ─── Allow Enter key to submit ─────────────────────────────────────
+  document.getElementById('inp-password').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+
+  // ─── Login function ────────────────────────────────────────────────
+  window.doLogin = async function () {
+    const email    = document.getElementById('inp-email').value.trim();
+    const password = document.getElementById('inp-password').value;
+    const btn      = document.getElementById('login-btn');
+    const errorBox = document.getElementById('error-box');
+
+    errorBox.classList.remove('show');
+
+    if (!email || !password) {
+      errorBox.textContent = 'Please enter your email and password.';
+      errorBox.classList.add('show');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Signing in...';
+
+    try {
+      // Sign in with Firebase Auth
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+
+      // Fetch user role from Firestore
+      const userDoc = await getDoc(doc(db, 'users', cred.user.uid));
+
+      if (!userDoc.exists()) {
+        throw new Error('User record not found.');
+      }
+
+      const userData = userDoc.data();
+
+      // Save role to sessionStorage for dashboard to use
+      sessionStorage.setItem('uid',  cred.user.uid);
+      sessionStorage.setItem('role', userData.role);
+      sessionStorage.setItem('name', userData.name);
+
+      // Redirect to dashboard
+      window.location.href = 'dashboard.html';
+
+    } catch (err) {
+      console.error(err);
+      errorBox.textContent = 'Incorrect email or password. Please try again.';
+      errorBox.classList.add('show');
+      btn.disabled = false;
+      btn.textContent = 'Sign In';
+    }
+  };
+</script>
+
+</body>
+</html>

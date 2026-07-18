@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admission Inquiry</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F5F3EF;
+  --surface: #FFFFFF;
+  --border: #E0DDD8;
+  --text: #1A1A1A;
+  --muted: #7A7670;
+  --accent: #2B5BA8;
+  --success: #1E7A4A;
+  --success-bg: #EAFAF1;
+  --danger: #C0392B;
+  --danger-bg: #FDECEA;
+  --font: 'IBM Plex Sans', sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.header-icon {
+  width: 32px; height: 32px;
+  background: var(--accent);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+}
+.header-icon svg { width: 18px; height: 18px; }
+.header-title { font-size: 15px; font-weight: 600; }
+.header-sub { font-size: 12px; color: var(--muted); font-family: var(--mono); margin-top: 1px; }
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  margin-left: auto;
+}
+.back-link:hover { color: var(--text); }
+
+.container { max-width: 560px; margin: 0 auto; padding: 28px 20px; }
+
+.page-title { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+.page-sub   { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px;
+  margin-bottom: 16px;
+}
+
+.card-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+.form-group:last-child { margin-bottom: 0; }
+
+label { font-size: 12px; font-weight: 500; color: var(--muted); }
+
+select, input, textarea {
+  font-family: var(--font);
+  font-size: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+select:focus, input:focus, textarea:focus {
+  border-color: var(--accent);
+  background: var(--surface);
+}
+textarea { resize: vertical; min-height: 80px; }
+
+.btn {
+  width: 100%;
+  padding: 11px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: opacity 0.15s;
+}
+.btn:hover { opacity: 0.9; }
+.btn:active { opacity: 0.8; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.alert {
+  font-size: 13px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  margin-bottom: 14px;
+  display: none;
+}
+.alert.show { display: block; }
+.alert-danger  { background: var(--danger-bg);  color: var(--danger);  border: 1px solid #f5c6c2; }
+.alert-success { background: var(--success-bg); color: var(--success); border: 1px solid #a8dfc0; }
+
+.success-card {
+  background: var(--success-bg);
+  border: 1px solid #a8dfc0;
+  border-radius: 10px;
+  padding: 32px 24px;
+  text-align: center;
+  display: none;
+}
+.success-card.show { display: block; }
+.success-icon { font-size: 32px; margin-bottom: 12px; }
+.success-title { font-size: 16px; font-weight: 600; color: var(--success); margin-bottom: 6px; }
+.success-sub   { font-size: 13px; color: var(--muted); line-height: 1.6; }
+.success-ref   { font-family: var(--mono); font-size: 13px; color: var(--success); margin-top: 10px; font-weight: 500; }
+
+.home-link {
+  display: block;
+  text-align: center;
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+.home-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+      <circle cx="9" cy="7" r="4"/>
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    </svg>
+  </div>
+  <div>
+    <div class="header-title">Admission Inquiry</div>
+    <div class="header-sub">fill in the form below</div>
+  </div>
+  <a class="back-link" href="home.html">← Back</a>
+</div>
+
+<div class="container">
+  <div class="page-title">Admission Inquiry Form</div>
+  <div class="page-sub">Fill in the details below. Our team will contact you shortly.</div>
+
+  <!-- Form card -->
+  <div class="card" id="form-card">
+    <div class="card-label">Child details</div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Child's Full Name *</label>
+        <input type="text" id="child-name" placeholder="Full name"/>
+      </div>
+      <div class="form-group">
+        <label>Applying for Class *</label>
+        <select id="apply-class">
+          <option value="">Select class</option>
+          <option>1</option><option>2</option><option>3</option><option>4</option>
+          <option>5</option><option>6</option><option>7</option><option>8</option>
+          <option>9</option><option>10</option><option>11</option><option>12</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="height:1px;background:var(--border);margin:4px 0 16px"></div>
+    <div class="card-label">Parent / Guardian details</div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Parent / Guardian Name *</label>
+        <input type="text" id="parent-name" placeholder="Full name"/>
+      </div>
+      <div class="form-group">
+        <label>Phone Number *</label>
+        <input type="tel" id="parent-phone" placeholder="10-digit number" maxlength="10"/>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Message / Note (optional)</label>
+      <textarea id="inquiry-note" placeholder="Any questions or additional information..."></textarea>
+    </div>
+
+    <div class="alert alert-danger" id="form-error"></div>
+
+    <button class="btn" id="submit-btn" onclick="submitInquiry()">Submit Inquiry</button>
+  </div>
+
+  <!-- Success card -->
+  <div class="success-card" id="success-card">
+    <div class="success-icon">✓</div>
+    <div class="success-title">Inquiry submitted successfully</div>
+    <div class="success-sub">Thank you. Our team will review your inquiry and contact you on the provided phone number.</div>
+    <div class="success-ref" id="success-ref"></div>
+  </div>
+
+  <a class="home-link" href="home.html">← Back to home</a>
+</div>
+
+<script type="module">
+  import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  // TODO: Replace with your Firebase config
+  const firebaseConfig = {
+  apiKey: "AIzaSyAnWCY8qYh2877JTB1_5p6D8XxCHvWLbnk",
+  authDomain: "school-data-base-61e1d.firebaseapp.com",
+  projectId: "school-data-base-61e1d",
+  storageBucket: "school-data-base-61e1d.firebasestorage.app",
+  messagingSenderId: "829460545981",
+  appId: "1:829460545981:web:4fd764fb6fbbaee0a052d4"
+};
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  window.submitInquiry = async function() {
+    const childName   = document.getElementById('child-name').value.trim();
+    const applyClass  = document.getElementById('apply-class').value;
+    const parentName  = document.getElementById('parent-name').value.trim();
+    const parentPhone = document.getElementById('parent-phone').value.trim();
+    const note        = document.getElementById('inquiry-note').value.trim();
+    const errorEl     = document.getElementById('form-error');
+    const btn         = document.getElementById('submit-btn');
+
+    errorEl.classList.remove('show');
+
+    if (!childName || !applyClass || !parentName || !parentPhone) {
+      errorEl.textContent = 'Please fill in all required fields.';
+      errorEl.classList.add('show');
+      return;
+    }
+
+    if (!/^\d{10}$/.test(parentPhone)) {
+      errorEl.textContent = 'Please enter a valid 10-digit phone number.';
+      errorEl.classList.add('show');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+
+    try {
+      const ref = await addDoc(collection(db, 'inquiries'), {
+        child_name:    childName,
+        apply_class:   applyClass,
+        parent_name:   parentName,
+        parent_phone:  parentPhone,
+        note:          note,
+        status:        'pending',
+        assigned_to:   null,
+        assigned_name: null,
+        follow_up_note: null,
+        created_at:    serverTimestamp(),
+        updated_at:    null
+      });
+
+      document.getElementById('form-card').style.display = 'none';
+      document.getElementById('success-ref').textContent = `Reference ID: ${ref.id.slice(0,8).toUpperCase()}`;
+      document.getElementById('success-card').classList.add('show');
+
+    } catch(err) {
+      console.error(err);
+      errorEl.textContent = 'Something went wrong. Please try again.';
+      errorEl.classList.add('show');
+      btn.disabled = false;
+      btn.textContent = 'Submit Inquiry';
+    }
+  };
+</script>
+
+</body>
+</html>

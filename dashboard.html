@@ -1,0 +1,1773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard – Fine Management</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F5F3EF;
+  --surface: #FFFFFF;
+  --border: #E0DDD8;
+  --text: #1A1A1A;
+  --muted: #7A7670;
+  --accent: #2B5BA8;
+  --accent-bg: #EEF3FB;
+  --danger: #C0392B;
+  --danger-bg: #FDECEA;
+  --success: #1E7A4A;
+  --success-bg: #EAFAF1;
+  --warning: #9A6F00;
+  --warning-bg: #FEF9E7;
+  --font: 'IBM Plex Sans', sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ── Header ── */
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.header-left { display: flex; align-items: center; gap: 12px; }
+
+.header-icon {
+  width: 30px; height: 30px;
+  background: var(--accent);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+}
+.header-icon svg { width: 16px; height: 16px; }
+.header-title { font-size: 14px; font-weight: 600; }
+.header-meta { font-size: 11px; color: var(--muted); font-family: var(--mono); }
+
+.header-right { display: flex; align-items: center; gap: 10px; }
+.role-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 99px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+.role-badge.admin { background: #F3EFFE; color: #5B35C0; }
+.role-badge.class_teacher { background: var(--success-bg); color: var(--success); }
+
+.btn-logout {
+  font-size: 12px;
+  font-family: var(--font);
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.btn-logout:hover { background: var(--bg); color: var(--text); }
+
+/* ── Tabs ── */
+.tabs {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+}
+
+.tab {
+  font-size: 13px;
+  font-weight: 500;
+  padding: 12px 16px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: var(--font);
+  transition: color 0.15s;
+}
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ── Layout ── */
+.container { max-width: 680px; margin: 0 auto; padding: 24px 20px; }
+
+.section { display: none; }
+.section.active { display: block; }
+
+/* ── Cards ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.card-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+/* ── Forms ── */
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group.full { grid-column: 1 / -1; }
+
+label { font-size: 12px; font-weight: 500; color: var(--muted); }
+
+select, input, textarea {
+  font-family: var(--font);
+  font-size: 14px;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+select:focus, input:focus, textarea:focus {
+  border-color: var(--accent);
+  background: var(--surface);
+}
+textarea { resize: vertical; min-height: 72px; }
+
+/* ── Buttons ── */
+.btn {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn:hover { opacity: 0.88; }
+.btn:active { opacity: 0.75; }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-danger  { background: var(--danger); color: #fff; }
+.btn-ghost   { background: transparent; border: 1px solid var(--border); color: var(--text); }
+.btn-success { background: var(--success); color: #fff; }
+.btn-full    { width: 100%; }
+.btn-sm      { padding: 6px 12px; font-size: 12px; }
+
+/* ── Alerts ── */
+.alert {
+  font-size: 13px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  margin-bottom: 14px;
+  display: none;
+}
+.alert.show { display: block; }
+.alert-warning { background: var(--warning-bg); color: var(--warning); border: 1px solid #f0d98a; }
+.alert-danger  { background: var(--danger-bg);  color: var(--danger);  border: 1px solid #f5c6c2; }
+.alert-success { background: var(--success-bg); color: var(--success); border: 1px solid #a8dfc0; }
+
+/* ── Student info bar ── */
+.student-bar {
+  background: var(--accent-bg);
+  border: 1px solid #c5d8f5;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 14px;
+  display: none;
+}
+.student-bar.show { display: flex; align-items: center; justify-content: space-between; }
+.student-bar-name { font-size: 15px; font-weight: 600; }
+.student-bar-meta { font-size: 12px; color: var(--accent); font-family: var(--mono); margin-top: 2px; }
+
+/* ── Table ── */
+.table-wrap { overflow-x: auto; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+}
+td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--bg); }
+
+.status-pill {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 99px;
+  letter-spacing: 0.04em;
+}
+.pill-active   { background: var(--danger-bg);  color: var(--danger); }
+.pill-refunded { background: var(--success-bg); color: var(--success); }
+
+/* ── Divider ── */
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+/* ── Modal overlay ── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.show { display: flex; }
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  width: 100%;
+  max-width: 440px;
+}
+.modal-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+.modal-sub   { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 18px; }
+
+/* ── Empty state ── */
+.empty { text-align: center; padding: 32px 20px; color: var(--muted); font-size: 13px; }
+
+/* ── Loading ── */
+.loading { text-align: center; padding: 24px; color: var(--muted); font-size: 13px; font-family: var(--mono); }
+
+/* ── Notification badge ── */
+.tab-badge {
+  display: inline-block;
+  background: var(--danger);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 99px;
+  margin-left: 5px;
+  vertical-align: middle;
+}
+
+/* ── Inquiry status pills ── */
+.pill-pending   { background: var(--warning-bg); color: var(--warning); }
+.pill-contacted { background: var(--accent-bg);  color: var(--accent);  }
+.pill-admitted  { background: var(--success-bg); color: var(--success); }
+.pill-rejected  { background: var(--danger-bg);  color: var(--danger);  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-left">
+    <div class="header-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="16" y1="13" x2="8" y2="13"/>
+        <line x1="16" y1="17" x2="8" y2="17"/>
+      </svg>
+    </div>
+    <div>
+      <div class="header-title">Fine Management</div>
+      <div class="header-meta" id="hdr-name">—</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="role-badge" id="hdr-role">—</span>
+    <button class="btn-logout" onclick="logout()">Sign out</button>
+  </div>
+</div>
+
+<!-- Tabs (shown based on role) -->
+<div class="tabs" id="tabs"></div>
+
+<!-- ════════════════════════════════════════════
+     SECTION: Issue Fine (all roles)
+════════════════════════════════════════════ -->
+<div class="container">
+
+  <div class="section active" id="sec-fine">
+    <div class="card">
+      <div class="card-label">Find student</div>
+      <div class="form-row-3">
+        <div class="form-group">
+          <label>Class</label>
+          <select id="f-class" onchange="resetStudent()">
+            <option value="">Select</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Division</label>
+          <select id="f-div" onchange="resetStudent()">
+            <option value="">Select</option>
+            <option>A</option><option>B</option><option>C</option><option>D</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Roll No.</label>
+          <input type="number" id="f-roll" placeholder="e.g. 12" min="1" oninput="resetStudent()"/>
+        </div>
+      </div>
+      <button class="btn btn-ghost" onclick="findStudent()">Find Student</button>
+    </div>
+
+    <!-- Student bar -->
+    <div class="student-bar" id="student-bar">
+      <div>
+        <div class="student-bar-name" id="sb-name">—</div>
+        <div class="student-bar-meta" id="sb-meta">—</div>
+      </div>
+    </div>
+
+    <!-- Fine form (shown after student loads) -->
+    <div class="card" id="fine-form" style="display:none">
+      <div class="card-label">Issue fine</div>
+
+      <div class="alert alert-warning" id="dup-warning">
+        ⚠ This student was already fined for this category today. You can still proceed.
+      </div>
+      <div class="alert alert-danger"  id="fine-error"></div>
+      <div class="alert alert-success" id="fine-success"></div>
+
+      <div class="form-group" style="margin-bottom:12px">
+        <label>Category</label>
+        <select id="f-category" onchange="checkDuplicate()">
+          <option value="">Select category</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="margin-bottom:12px">
+        <label>Amount (₹)</label>
+        <input type="number" id="f-amount" readonly placeholder="Auto-filled from category"/>
+      </div>
+
+      <div class="form-group" style="margin-bottom:16px">
+        <label>Note (optional)</label>
+        <textarea id="f-note" placeholder="Add extra details if needed..."></textarea>
+      </div>
+
+      <button class="btn btn-primary btn-full" id="fine-submit-btn" onclick="submitFine()">Issue Fine</button>
+    </div>
+
+    <!-- Recent fines by this teacher -->
+    <div class="card" id="recent-fines-card" style="display:none">
+      <div class="card-label">Your recent fines</div>
+      <div class="table-wrap">
+        <table id="recent-fines-table">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Category</th>
+              <th>Amount</th>
+              <th>Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="recent-fines-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════
+       SECTION: My Students (class teacher only)
+  ════════════════════════════════════════════ -->
+  <div class="section" id="sec-students">
+    <div class="card">
+      <div class="card-label">Add student</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" id="s-name" placeholder="Full name"/>
+        </div>
+        <div class="form-group">
+          <label>Roll No.</label>
+          <input type="number" id="s-roll" placeholder="Roll number" min="1"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Date of Birth</label>
+          <input type="date" id="s-dob"/>
+        </div>
+        <div class="form-group" style="justify-content:flex-end; padding-top:17px">
+          <button class="btn btn-primary" onclick="addStudent()">Add Student</button>
+        </div>
+      </div>
+      <div class="alert alert-danger"  id="s-error"></div>
+      <div class="alert alert-success" id="s-success"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Students in my class</div>
+      <div id="students-list"><div class="loading">Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════
+       SECTION: All Fines (admin only)
+  ════════════════════════════════════════════ -->
+  <div class="section" id="sec-allfines">
+    <div class="card">
+      <div class="card-label">All fines</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Class</th>
+              <th>Category</th>
+              <th>Teacher</th>
+              <th>Amount</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="all-fines-body"><tr><td colspan="8" class="empty">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════
+       SECTION: Classes (admin only)
+  ════════════════════════════════════════════ -->
+  <div class="section" id="sec-classes">
+    <div class="card">
+      <div class="card-label">Create new class</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Class Number</label>
+          <input type="number" id="c-num" placeholder="e.g. 4" min="1" max="12"/>
+        </div>
+        <div class="form-group">
+          <label>Division</label>
+          <select id="c-div">
+            <option value="">Select</option>
+            <option>A</option><option>B</option><option>C</option><option>D</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:12px">
+        <label>Assign Class Teacher</label>
+        <select id="c-teacher">
+          <option value="">Select teacher</option>
+        </select>
+      </div>
+      <div class="alert alert-danger"  id="c-error"></div>
+      <div class="alert alert-success" id="c-success"></div>
+      <button class="btn btn-primary" onclick="createClass()">Create Class</button>
+    </div>
+
+    <div class="card">
+      <div class="card-label">All classes</div>
+      <div id="classes-list"><div class="loading">Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════
+       SECTION: Staff (admin only)
+  ════════════════════════════════════════════ -->
+  <div class="section" id="sec-staff">
+    <div class="card">
+      <div class="card-label">Add staff account</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="st-name" placeholder="Name"/>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="st-email" placeholder="email@school.edu"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="st-pass" placeholder="Min 6 characters"/>
+        </div>
+        <div class="form-group">
+          <label>Role</label>
+          <select id="st-role">
+            <option value="teacher">Teacher</option>
+            <option value="class_teacher">Class Teacher</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+      </div>
+      <div class="alert alert-danger"  id="st-error"></div>
+      <div class="alert alert-success" id="st-success"></div>
+      <button class="btn btn-primary" onclick="addStaff()">Add Staff</button>
+    </div>
+
+    <div class="card">
+      <div class="card-label">All staff</div>
+      <div id="staff-list"><div class="loading">Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════
+       SECTION: Categories (admin only)
+  ════════════════════════════════════════════ -->
+  <div class="section" id="sec-categories">
+    <div class="card">
+      <div class="card-label">Add category</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Category Name</label>
+          <input type="text" id="cat-name" placeholder="e.g. Long nails"/>
+        </div>
+        <div class="form-group">
+          <label>Amount (₹)</label>
+          <input type="number" id="cat-amount" placeholder="e.g. 50" min="1"/>
+        </div>
+      </div>
+      <div class="alert alert-danger"  id="cat-error"></div>
+      <div class="alert alert-success" id="cat-success"></div>
+      <button class="btn btn-primary" onclick="addCategory()">Add Category</button>
+    </div>
+
+    <div class="card">
+      <div class="card-label">All categories</div>
+      <div id="categories-list"><div class="loading">Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════
+       SECTION: All Inquiries (admin)
+  ════════════════════════════════════════════ -->
+
+
+  <div class="section" id="sec-inquiries">
+    
+  <div class="card">
+  <div class="card-label">Inquiry Statistics</div>
+
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;text-align:center;">
+    <div>
+      <div id="stat-total" style="font-size:22px;font-weight:600;">0</div>
+      <div style="font-size:12px;color:var(--muted);">Total</div>
+    </div>
+
+    <div>
+      <div id="stat-pending" style="font-size:22px;font-weight:600;">0</div>
+      <div style="font-size:12px;color:var(--muted);">Pending</div>
+    </div>
+
+    <div>
+      <div id="stat-contacted" style="font-size:22px;font-weight:600;">0</div>
+      <div style="font-size:12px;color:var(--muted);">Contacted</div>
+    </div>
+
+    <div>
+      <div id="stat-admitted" style="font-size:22px;font-weight:600;">0</div>
+      <div style="font-size:12px;color:var(--muted);">Admitted</div>
+    </div>
+
+    <div>
+      <div id="stat-rejected" style="font-size:22px;font-weight:600;">0</div>
+      <div style="font-size:12px;color:var(--muted);">Rejected</div>
+    </div>
+  </div>
+</div>
+    <div class="card">
+      <div class="card-label">All admission inquiries</div>
+      <div style="margin:12px 0;display:flex;gap:8px;flex-wrap:wrap;">
+  <button class="btn btn-sm" onclick="filterInquiries('all')">All</button>
+  <button class="btn btn-sm" onclick="filterInquiries('pending')">Pending</button>
+  <button class="btn btn-sm" onclick="filterInquiries('contacted')">Contacted</button>
+  <button class="btn btn-sm" onclick="filterInquiries('admitted')">Admitted</button>
+  <button class="btn btn-sm" onclick="filterInquiries('rejected')">Rejected</button>
+</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Child</th>
+              <th>Class</th>
+              <th>Parent</th>
+              <th>Phone</th>
+              <th>Date</th>
+              <th>Assigned To</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="all-inquiries-body"><tr><td colspan="8" class="empty">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════
+       SECTION: My Inquiries (teacher / class teacher)
+  ════════════════════════════════════════════ -->
+  <div class="section" id="sec-my-inquiries">
+    <div class="card">
+      <div class="card-label">Inquiries assigned to me</div>
+      <div id="my-inquiries-list"><div class="loading">Loading...</div></div>
+    </div>
+  </div>
+
+  
+
+  <!-- ════════════════════════════════════════════
+       SECTION: Settings / Year-end reset (admin)
+  ════════════════════════════════════════════ -->
+  <div class="section" id="sec-settings">
+    <div class="card">
+      <div class="card-label">Year-end reset</div>
+      <p style="font-size:14px;color:var(--muted);margin-bottom:16px;line-height:1.6">
+        Archives all current fine records to a yearly backup collection, then clears the active fines list.
+        Students, classes, and staff accounts are NOT affected.
+      </p>
+      <button class="btn btn-danger" onclick="openResetModal()">Archive &amp; Reset Fines</button>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<!-- ════════════════════════════════════════════
+     MODAL: Assign inquiry (admin)
+════════════════════════════════════════════ -->
+<div class="modal-overlay" id="assign-inquiry-modal">
+  <div class="modal">
+    <div class="modal-title">Assign inquiry</div>
+    <div class="modal-sub" id="assign-inquiry-sub">Select a teacher to handle this inquiry.</div>
+    <div class="form-group">
+      <label>Assign to</label>
+      <select id="assign-teacher-sel">
+        <option value="">Select teacher</option>
+      </select>
+    </div>
+    <div class="alert alert-danger" id="assign-error"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('assign-inquiry-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmAssign()">Assign</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     MODAL: Update inquiry status (teacher)
+════════════════════════════════════════════ -->
+<div class="modal-overlay" id="update-inquiry-modal">
+  <div class="modal">
+    <div class="modal-title">Update inquiry status</div>
+    <div class="modal-sub" id="update-inquiry-sub">Update the follow-up status for this inquiry.</div>
+    <div class="form-group">
+      <label>Status</label>
+      <select id="update-status-sel">
+        <option value="contacted">Contacted</option>
+        <option value="admitted">Admitted</option>
+        <option value="rejected">Rejected</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Follow-up note (optional)</label>
+      <textarea id="update-note" placeholder="e.g. Called parent, meeting scheduled for Monday"></textarea>
+    </div>
+    <div class="alert alert-danger" id="update-error"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('update-inquiry-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmUpdateInquiry()">Update</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     MODAL: Refund fine
+════════════════════════════════════════════ -->
+<div class="modal-overlay" id="refund-modal">
+  <div class="modal">
+    <div class="modal-title">Refund fine</div>
+    <div class="modal-sub">Provide a reason. The original record will be kept for audit.</div>
+    <div class="form-group">
+      <label>Reason for refund</label>
+      <textarea id="refund-reason" placeholder="e.g. ID card was lost, new one issued"></textarea>
+    </div>
+    <div class="alert alert-danger" id="refund-error"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('refund-modal')">Cancel</button>
+      <button class="btn btn-success" onclick="confirmRefund()">Confirm Refund</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Delete class confirm -->
+<div class="modal-overlay" id="del-class-modal">
+  <div class="modal">
+    <div class="modal-title">Delete class?</div>
+    <div class="modal-sub" id="del-class-sub">This will remove the class. Students in this class will need to be reassigned.</div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('del-class-modal')">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmDeleteClass()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Delete category confirm -->
+<div class="modal-overlay" id="del-cat-modal">
+  <div class="modal">
+    <div class="modal-title">Delete category?</div>
+    <div class="modal-sub">This category will no longer be available when issuing fines.</div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('del-cat-modal')">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmDeleteCategory()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Remove staff confirm -->
+<div class="modal-overlay" id="del-staff-modal">
+  <div class="modal">
+    <div class="modal-title">Remove staff account?</div>
+    <div class="modal-sub" id="del-staff-sub">This will delete the account. This cannot be undone.</div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('del-staff-modal')">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmDeleteStaff()">Remove</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Year-end reset confirm -->
+<div class="modal-overlay" id="reset-modal">
+  <div class="modal">
+    <div class="modal-title">Archive &amp; reset fines?</div>
+    <div class="modal-sub">
+      All current fines will be archived and the active fines list will be cleared.
+      This cannot be undone. Type <strong>RESET</strong> to confirm.
+    </div>
+    <div class="form-group" style="margin-bottom:0">
+      <input type="text" id="reset-confirm-input" placeholder="Type RESET"/>
+    </div>
+    <div class="alert alert-danger" id="reset-error"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('reset-modal')">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmReset()">Archive &amp; Reset</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+// ═══════════════════════════════════════════════════════════════
+// Firebase imports
+// ═══════════════════════════════════════════════════════════════
+import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getAuth,
+  signOut,
+  createUserWithEmailAndPassword,
+  deleteUser
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import {
+  getFirestore,
+  collection, doc,
+  addDoc, setDoc, getDoc, getDocs, updateDoc, deleteDoc,
+  query, where, orderBy, serverTimestamp, writeBatch
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// ═══════════════════════════════════════════════════════════════
+// TODO: Replace with your Firebase config
+// ═══════════════════════════════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyAnWCY8qYh2877JTB1_5p6D8XxCHvWLbnk",
+  authDomain: "school-data-base-61e1d.firebaseapp.com",
+  projectId: "school-data-base-61e1d",
+  storageBucket: "school-data-base-61e1d.firebasestorage.app",
+  messagingSenderId: "829460545981",
+  appId: "1:829460545981:web:4fd764fb6fbbaee0a052d4"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+const secondaryApp = initializeApp(firebaseConfig, "secondary");
+const secondaryAuth = getAuth(secondaryApp);
+
+// ═══════════════════════════════════════════════════════════════
+// State
+// ═══════════════════════════════════════════════════════════════
+let currentUser  = null;   // { uid, role, name, class_id? }
+let activeStudent = null;  // student doc currently loaded in fine form
+let pendingRefundId   = null;
+let pendingDeleteClassId = null;
+let pendingDeleteCatId   = null;
+let pendingDeleteStaffId = null;
+
+// ═══════════════════════════════════════════════════════════════
+// Boot — check session
+// ═══════════════════════════════════════════════════════════════
+(async () => {
+  const uid  = sessionStorage.getItem('uid');
+  const role = sessionStorage.getItem('role');
+  const name = sessionStorage.getItem('name');
+
+  if (!uid || !role) {
+    window.location.href = 'login.html';
+    return;
+  }
+
+  currentUser = { uid, role, name };
+
+  // Header
+  document.getElementById('hdr-name').textContent = name;
+  const roleBadge = document.getElementById('hdr-role');
+  roleBadge.textContent = role.replace('_', ' ');
+  if (role === 'admin') roleBadge.classList.add('admin');
+  if (role === 'class_teacher') roleBadge.classList.add('class_teacher');
+
+  // If class teacher, fetch their assigned class
+  if (role === 'class_teacher') {
+    const uDoc = await getDoc(doc(db, 'users', uid));
+    if (uDoc.exists()) currentUser.class_id = uDoc.data().class_id || null;
+  }
+
+  buildTabs(role);
+  await loadClassDropdown();
+  await loadCategories();
+  await loadRecentFines();
+
+  if (role === 'class_teacher') {
+    await loadMyStudents();
+    await loadMyInquiries();
+  }
+  if (role === 'teacher') {
+    await loadMyInquiries();
+  }
+  if (role === 'admin') {
+    await loadAllFines();
+    await loadAllInquiries();
+    await loadClasses();
+    await loadStaff();
+    await loadCategoriesAdmin();
+  }
+})();
+
+// ═══════════════════════════════════════════════════════════════
+// Tabs
+// ═══════════════════════════════════════════════════════════════
+function buildTabs(role) {
+  const tabsEl = document.getElementById('tabs');
+  const tabs = [{ id: 'sec-fine', label: 'Issue Fine' }];
+
+  if (role === 'class_teacher') {
+    tabs.push(
+      { id: 'sec-students',     label: 'My Students'   },
+      { id: 'sec-my-inquiries', label: 'My Inquiries'  }
+    );
+  }
+  if (role === 'teacher') {
+    tabs.push({ id: 'sec-my-inquiries', label: 'My Inquiries' });
+  }
+  if (role === 'admin') {
+    tabs.push(
+      { id: 'sec-allfines',   label: 'All Fines'   },
+      { id: 'sec-inquiries',  label: 'Inquiries'   },
+      { id: 'sec-classes',    label: 'Classes'      },
+      { id: 'sec-staff',      label: 'Staff'        },
+      { id: 'sec-categories', label: 'Categories'   },
+      { id: 'sec-settings',   label: 'Settings'     }
+    );
+  }
+
+  tabsEl.innerHTML = tabs.map((t, i) =>
+    `<button class="tab${i === 0 ? ' active' : ''}" onclick="switchTab('${t.id}', this)">${t.label}</button>`
+  ).join('');
+}
+
+window.switchTab = function(sectionId, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(sectionId).classList.add('active');
+  btn.classList.add('active');
+};
+
+// ═══════════════════════════════════════════════════════════════
+// Load class dropdown (fine form)
+// ═══════════════════════════════════════════════════════════════
+async function loadClassDropdown() {
+  const sel = document.getElementById('f-class');
+  sel.innerHTML = '<option value="">Select</option>';
+
+  if (currentUser.role === 'class_teacher' && currentUser.class_id) {
+    // Class teacher only sees their own class
+    const cDoc = await getDoc(doc(db, 'classes', currentUser.class_id));
+    if (cDoc.exists()) {
+      const d = cDoc.data();
+      sel.innerHTML += `<option value="${cDoc.id}" data-div="${d.division}">${d.grade}${d.division}</option>`;
+      sel.value = cDoc.id;
+      document.getElementById('f-div').value = d.division;
+      sel.disabled = true;
+      document.getElementById('f-div').disabled = true;
+    }
+  } else {
+    const snap = await getDocs(query(collection(db, 'classes'), orderBy('grade')));
+    snap.forEach(d => {
+      const c = d.data();
+      sel.innerHTML += `<option value="${d.id}">${c.grade}${c.division}</option>`;
+    });
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Load categories into fine form dropdown
+// ═══════════════════════════════════════════════════════════════
+async function loadCategories() {
+  const sel = document.getElementById('f-category');
+  sel.innerHTML = '<option value="">Select category</option>';
+  const snap = await getDocs(query(collection(db, 'categories'), orderBy('name')));
+  snap.forEach(d => {
+    const c = d.data();
+    sel.innerHTML += `<option value="${d.id}" data-amount="${c.amount}">${c.name} — ₹${c.amount}</option>`;
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Find student
+// ═══════════════════════════════════════════════════════════════
+window.resetStudent = function() {
+  activeStudent = null;
+  document.getElementById('student-bar').classList.remove('show');
+  document.getElementById('fine-form').style.display = 'none';
+};
+
+window.findStudent = async function() {
+  const classId = document.getElementById('f-class').value;
+  const div     = document.getElementById('f-div').value;
+  const roll    = document.getElementById('f-roll').value.trim();
+
+  if (!classId || !div || !roll) {
+    alert('Please select class, division and enter roll number.');
+    return;
+  }
+
+  const cDoc = await getDoc(doc(db, 'classes', classId));
+  if (!cDoc.exists()) { alert('Class not found.'); return; }
+  const classData = cDoc.data();
+
+  const q = query(
+    collection(db, 'students'),
+    where('class_id', '==', classId),
+    where('roll_no',  '==', roll)
+  );
+  const snap = await getDocs(q);
+
+  if (snap.empty) {
+    alert('No student found with that roll number in this class.');
+    return;
+  }
+
+  const sDoc = snap.docs[0];
+  activeStudent = { id: sDoc.id, ...sDoc.data() };
+
+  document.getElementById('sb-name').textContent = activeStudent.name;
+  document.getElementById('sb-meta').textContent =
+    `Class ${classData.grade}${classData.division} · Roll No. ${activeStudent.roll_no}`;
+  document.getElementById('student-bar').classList.add('show');
+  document.getElementById('fine-form').style.display = 'block';
+
+  // Reset fine form
+  document.getElementById('f-category').value = '';
+  document.getElementById('f-amount').value   = '';
+  document.getElementById('f-note').value     = '';
+  hideAlert('dup-warning');
+  hideAlert('fine-error');
+  hideAlert('fine-success');
+};
+
+// ═══════════════════════════════════════════════════════════════
+// Auto-fill amount + duplicate check when category changes
+// ═══════════════════════════════════════════════════════════════
+window.checkDuplicate = async function() {
+  const sel = document.getElementById('f-category');
+  const opt = sel.options[sel.selectedIndex];
+  hideAlert('dup-warning');
+
+  if (!opt || !opt.value) {
+    document.getElementById('f-amount').value = '';
+    return;
+  }
+
+  document.getElementById('f-amount').value = opt.dataset.amount || '';
+
+  if (!activeStudent) return;
+
+  // Check: same student + same category + today
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate() + 1);
+
+  const q = query(
+    collection(db, 'fines'),
+    where('student_id',  '==', activeStudent.id),
+    where('category_id', '==', opt.value),
+    where('created_at',  '>=', today),
+    where('created_at',  '<',  tomorrow)
+  );
+  const snap = await getDocs(q);
+  if (!snap.empty) showAlert('dup-warning');
+};
+
+// ═══════════════════════════════════════════════════════════════
+// Submit fine
+// ═══════════════════════════════════════════════════════════════
+window.submitFine = async function() {
+  hideAlert('fine-error');
+  hideAlert('fine-success');
+
+  if (!activeStudent) { showAlert('fine-error', 'No student selected.'); return; }
+
+  const catSel = document.getElementById('f-category');
+  const catId  = catSel.value;
+  const catOpt = catSel.options[catSel.selectedIndex];
+  const amount = parseInt(document.getElementById('f-amount').value);
+  const note   = document.getElementById('f-note').value.trim();
+
+  if (!catId) { showAlert('fine-error', 'Please select a category.'); return; }
+
+  const btn = document.getElementById('fine-submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+
+  try {
+    await addDoc(collection(db, 'fines'), {
+      student_id:    activeStudent.id,
+      student_name:  activeStudent.name,
+      class_id:      activeStudent.class_id,
+      category_id:   catId,
+      category_name: catOpt.text.split(' — ')[0],
+      amount:        amount,
+      note:          note,
+      teacher_id:    currentUser.uid,
+      teacher_name:  currentUser.name,
+      status:        'active',
+      created_at:    serverTimestamp(),
+      refunded_at:   null,
+      refunded_by_id: null,
+      refund_reason:  null
+    });
+
+    showAlert('fine-success', `Fine of ₹${amount} issued to ${activeStudent.name}.`);
+    document.getElementById('f-category').value = '';
+    document.getElementById('f-amount').value   = '';
+    document.getElementById('f-note').value     = '';
+    hideAlert('dup-warning');
+    await loadRecentFines();
+
+  } catch (err) {
+    console.error(err);
+    showAlert('fine-error', 'Failed to submit. Please try again.');
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Issue Fine';
+};
+
+// ═══════════════════════════════════════════════════════════════
+// Recent fines (this teacher)
+// ═══════════════════════════════════════════════════════════════
+async function loadRecentFines() {
+  const card = document.getElementById('recent-fines-card');
+  const body = document.getElementById('recent-fines-body');
+  card.style.display = 'block';
+  body.innerHTML = '<tr><td colspan="5" class="loading">Loading...</td></tr>';
+
+  const q = query(
+    collection(db, 'fines'),
+    where('teacher_id', '==', currentUser.uid),
+    orderBy('created_at', 'desc')
+  );
+  const snap = await getDocs(q);
+
+  if (snap.empty) {
+    body.innerHTML = '<tr><td colspan="5" class="empty">No fines issued yet.</td></tr>';
+    return;
+  }
+
+  body.innerHTML = snap.docs.slice(0, 20).map(d => {
+    const f = d.data();
+    const date = f.created_at?.toDate
+      ? f.created_at.toDate().toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })
+      : '—';
+    return `<tr>
+      <td>${f.student_name || '—'}</td>
+      <td>${f.category_name || '—'}</td>
+      <td style="font-family:var(--mono)">₹${f.amount}</td>
+      <td>${date}</td>
+      <td><span class="status-pill pill-${f.status}">${f.status}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CLASS TEACHER: My students
+// ═══════════════════════════════════════════════════════════════
+async function loadMyStudents() {
+  if (!currentUser.class_id) {
+    document.getElementById('students-list').innerHTML =
+      '<div class="empty">You have not been assigned a class yet.</div>';
+    return;
+  }
+
+  const q = query(
+    collection(db, 'students'),
+    where('class_id', '==', currentUser.class_id),
+    orderBy('roll_no')
+  );
+  const snap = await getDocs(q);
+  const el = document.getElementById('students-list');
+
+  if (snap.empty) {
+    el.innerHTML = '<div class="empty">No students added yet.</div>';
+    return;
+  }
+
+  el.innerHTML = `<div class="table-wrap"><table>
+    <thead><tr><th>Roll No.</th><th>Name</th><th>DOB</th><th></th></tr></thead>
+    <tbody>` +
+    snap.docs.map(d => {
+      const s = d.data();
+      return `<tr>
+        <td style="font-family:var(--mono)">${s.roll_no}</td>
+        <td>${s.name}</td>
+        <td>${s.dob || '—'}</td>
+        <td><button class="btn btn-ghost btn-sm" onclick="removeStudent('${d.id}','${s.name}')">Remove</button></td>
+      </tr>`;
+    }).join('') +
+    `</tbody></table></div>`;
+}
+
+window.addStudent = async function() {
+  hideAlert('s-error'); hideAlert('s-success');
+  const name = document.getElementById('s-name').value.trim();
+  const roll = document.getElementById('s-roll').value.trim();
+  const dob  = document.getElementById('s-dob').value;
+
+  if (!name || !roll || !dob) { showAlert('s-error', 'All fields are required.'); return; }
+  if (!currentUser.class_id)  { showAlert('s-error', 'No class assigned to you.'); return; }
+
+  // Check duplicate roll in same class
+  const q = query(collection(db,'students'), where('class_id','==',currentUser.class_id), where('roll_no','==',roll));
+  const ex = await getDocs(q);
+  if (!ex.empty) { showAlert('s-error', 'Roll number already exists in this class.'); return; }
+
+  // Get class info for denormalized fields
+  const cDoc = await getDoc(doc(db,'classes',currentUser.class_id));
+  const cData = cDoc.data();
+
+  await addDoc(collection(db,'students'), {
+    name,
+    roll_no:  roll,
+    dob,
+    class_id: currentUser.class_id,
+    class:    String(cData.grade),
+    division: cData.division,
+    status:   'active'
+  });
+
+  showAlert('s-success', `${name} added successfully.`);
+  document.getElementById('s-name').value = '';
+  document.getElementById('s-roll').value = '';
+  document.getElementById('s-dob').value  = '';
+  await loadMyStudents();
+};
+
+window.removeStudent = async function(id, name) {
+  if (!confirm(`Remove ${name}? Their fine history will remain.`)) return;
+  await deleteDoc(doc(db,'students',id));
+  await loadMyStudents();
+};
+
+// ═══════════════════════════════════════════════════════════════
+// ADMIN: All fines
+// ═══════════════════════════════════════════════════════════════
+async function loadAllFines() {
+  const body = document.getElementById('all-fines-body');
+  body.innerHTML = '<tr><td colspan="8" class="loading">Loading...</td></tr>';
+
+  const snap = await getDocs(query(collection(db,'fines'), orderBy('created_at','desc')));
+
+  if (snap.empty) {
+    body.innerHTML = '<tr><td colspan="8" class="empty">No fines yet.</td></tr>';
+    return;
+  }
+
+  body.innerHTML = snap.docs.map(d => {
+    const f    = d.data();
+    const date = f.created_at?.toDate
+      ? f.created_at.toDate().toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })
+      : '—';
+    const refundBtn = f.status === 'active'
+      ? `<button class="btn btn-ghost btn-sm" onclick="openRefundModal('${d.id}')">Refund</button>`
+      : '—';
+    return `<tr>
+      <td>${f.student_name || '—'}</td>
+      <td style="font-family:var(--mono)">${f.class_id || '—'}</td>
+      <td>${f.category_name || '—'}</td>
+      <td>${f.teacher_name || '—'}</td>
+      <td style="font-family:var(--mono)">₹${f.amount}</td>
+      <td>${date}</td>
+      <td><span class="status-pill pill-${f.status}">${f.status}</span></td>
+      <td>${refundBtn}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ─── Refund ───────────────────────────────────────────────────
+window.openRefundModal = function(fineId) {
+  pendingRefundId = fineId;
+  document.getElementById('refund-reason').value = '';
+  hideAlert('refund-error');
+  document.getElementById('refund-modal').classList.add('show');
+};
+
+window.confirmRefund = async function() {
+  const reason = document.getElementById('refund-reason').value.trim();
+  if (!reason) { showAlert('refund-error', 'Please enter a reason.'); return; }
+
+  await updateDoc(doc(db,'fines',pendingRefundId), {
+    status:         'refunded',
+    refund_reason:  reason,
+    refunded_at:    serverTimestamp(),
+    refunded_by_id: currentUser.uid
+  });
+
+  closeModal('refund-modal');
+  await loadAllFines();
+};
+
+// ═══════════════════════════════════════════════════════════════
+// ADMIN: Classes
+// ═══════════════════════════════════════════════════════════════
+async function loadClasses() {
+  const el = document.getElementById('classes-list');
+  const snap = await getDocs(query(collection(db,'classes'), orderBy('grade')));
+
+  if (snap.empty) { el.innerHTML = '<div class="empty">No classes created yet.</div>'; return; }
+
+  el.innerHTML = `<div class="table-wrap"><table>
+    <thead><tr><th>Class</th><th>Class Teacher</th><th></th></tr></thead>
+    <tbody>` +
+    snap.docs.map(d => {
+      const c = d.data();
+      return `<tr>
+        <td><strong>${c.grade}${c.division}</strong></td>
+        <td>${c.class_teacher_name || '—'}</td>
+        <td><button class="btn btn-ghost btn-sm" onclick="openDeleteClass('${d.id}','${c.grade}${c.division}')">Delete</button></td>
+      </tr>`;
+    }).join('') +
+    `</tbody></table></div>`;
+}
+
+window.createClass = async function() {
+  hideAlert('c-error'); hideAlert('c-success');
+  const grade    = document.getElementById('c-num').value.trim();
+  const division = document.getElementById('c-div').value;
+  const teacherId = document.getElementById('c-teacher').value;
+
+  if (!grade || !division) { showAlert('c-error','Class number and division are required.'); return; }
+
+  // Check duplicate
+  const ex = await getDocs(query(collection(db,'classes'), where('grade','==',grade), where('division','==',division)));
+  if (!ex.empty) { showAlert('c-error',`Class ${grade}${division} already exists.`); return; }
+
+  let teacherName = '';
+  if (teacherId) {
+    const tDoc = await getDoc(doc(db,'users',teacherId));
+    if (tDoc.exists()) teacherName = tDoc.data().name;
+  }
+
+  const ref = await addDoc(collection(db,'classes'), {
+    grade, division,
+    class_teacher_id:   teacherId || null,
+    class_teacher_name: teacherName || null
+  });
+
+  // Update teacher's class_id
+  if (teacherId) {
+    await updateDoc(doc(db,'users',teacherId), { class_id: ref.id });
+  }
+
+  showAlert('c-success', `Class ${grade}${division} created.`);
+  document.getElementById('c-num').value = '';
+  document.getElementById('c-div').value = '';
+  document.getElementById('c-teacher').value = '';
+  await loadClasses();
+  await loadClassDropdown();
+};
+
+window.openDeleteClass = function(id, label) {
+  pendingDeleteClassId = id;
+  document.getElementById('del-class-sub').textContent =
+    `Delete Class ${label}? Students in this class will need to be reassigned.`;
+  document.getElementById('del-class-modal').classList.add('show');
+};
+
+window.confirmDeleteClass = async function() {
+  await deleteDoc(doc(db,'classes',pendingDeleteClassId));
+  closeModal('del-class-modal');
+  await loadClasses();
+  await loadClassDropdown();
+};
+
+// ═══════════════════════════════════════════════════════════════
+// ADMIN: Staff
+// ═══════════════════════════════════════════════════════════════
+async function loadStaff() {
+  const el = document.getElementById('staff-list');
+  const teacherSel = document.getElementById('c-teacher');
+  teacherSel.innerHTML = '<option value="">Select teacher</option>';
+
+  const snap = await getDocs(query(collection(db,'users'), orderBy('name')));
+
+  if (snap.empty) { el.innerHTML = '<div class="empty">No staff yet.</div>'; return; }
+
+  snap.forEach(d => {
+    const u = d.data();
+    if (u.role === 'class_teacher' || u.role === 'teacher') {
+      teacherSel.innerHTML += `<option value="${d.id}">${u.name} (${u.role.replace('_',' ')})</option>`;
+    }
+  });
+
+  el.innerHTML = `<div class="table-wrap"><table>
+    <thead><tr><th>Name</th><th>Email</th><th>Role</th><th></th></tr></thead>
+    <tbody>` +
+    snap.docs.map(d => {
+      const u = d.data();
+      const isSelf = d.id === currentUser.uid;
+      return `<tr>
+        <td>${u.name}</td>
+        <td style="font-family:var(--mono);font-size:12px">${u.email || '—'}</td>
+        <td>${u.role.replace('_',' ')}</td>
+        <td>${isSelf ? '<span style="font-size:12px;color:var(--muted)">you</span>'
+          : `<button class="btn btn-ghost btn-sm" onclick="openDeleteStaff('${d.id}','${u.name}')">Remove</button>`}</td>
+      </tr>`;
+    }).join('') +
+    `</tbody></table></div>`;
+}
+
+window.addStaff = async function() {
+  hideAlert('st-error'); hideAlert('st-success');
+  const name  = document.getElementById('st-name').value.trim();
+  const email = document.getElementById('st-email').value.trim();
+  const pass  = document.getElementById('st-pass').value;
+  const role  = document.getElementById('st-role').value;
+
+  if (!name || !email || !pass || !role) { showAlert('st-error','All fields are required.'); return; }
+  if (pass.length < 6) { showAlert('st-error','Password must be at least 6 characters.'); return; }
+
+  try {
+    const cred = await createUserWithEmailAndPassword(
+  secondaryAuth,
+  email,
+  pass
+);
+    console.log(auth.currentUser.uid);
+console.log(cred.user.uid);
+    await setDoc(doc(db,'users',cred.user.uid), { name, email, role, class_id: null });
+    await secondaryAuth.signOut();
+
+    showAlert('st-success', `${name} added as ${role.replace('_',' ')}.`);
+    document.getElementById('st-name').value  = '';
+    document.getElementById('st-email').value = '';
+    document.getElementById('st-pass').value  = '';
+    await loadStaff();
+  } catch(err) {
+    console.error(err);
+    showAlert('st-error', err.message || 'Failed to add staff.');
+  }
+};
+
+window.openDeleteStaff = function(id, name) {
+  pendingDeleteStaffId = id;
+  document.getElementById('del-staff-sub').textContent =
+    `Remove ${name}? Their issued fines will remain on record.`;
+  document.getElementById('del-staff-modal').classList.add('show');
+};
+
+window.confirmDeleteStaff = async function() {
+  await deleteDoc(doc(db,'users',pendingDeleteStaffId));
+  closeModal('del-staff-modal');
+  await loadStaff();
+};
+
+// ═══════════════════════════════════════════════════════════════
+// ADMIN: Categories
+// ═══════════════════════════════════════════════════════════════
+async function loadCategoriesAdmin() {
+  const el = document.getElementById('categories-list');
+  const snap = await getDocs(query(collection(db,'categories'), orderBy('name')));
+
+  if (snap.empty) { el.innerHTML = '<div class="empty">No categories yet.</div>'; return; }
+
+  el.innerHTML = `<div class="table-wrap"><table>
+    <thead><tr><th>Category</th><th>Amount</th><th></th></tr></thead>
+    <tbody>` +
+    snap.docs.map(d => {
+      const c = d.data();
+      return `<tr>
+        <td>${c.name}</td>
+        <td style="font-family:var(--mono)">₹${c.amount}</td>
+        <td><button class="btn btn-ghost btn-sm" onclick="openDeleteCat('${d.id}')">Delete</button></td>
+      </tr>`;
+    }).join('') +
+    `</tbody></table></div>`;
+}
+
+window.addCategory = async function() {
+  hideAlert('cat-error'); hideAlert('cat-success');
+  const name   = document.getElementById('cat-name').value.trim();
+  const amount = parseInt(document.getElementById('cat-amount').value);
+
+  if (!name || !amount || amount < 1) { showAlert('cat-error','Name and a valid amount are required.'); return; }
+
+  const ex = await getDocs(query(collection(db,'categories'), where('name','==',name)));
+  if (!ex.empty) { showAlert('cat-error','This category already exists.'); return; }
+
+  await addDoc(collection(db,'categories'), { name, amount });
+  showAlert('cat-success', `Category "${name}" added.`);
+  document.getElementById('cat-name').value   = '';
+  document.getElementById('cat-amount').value = '';
+  await loadCategoriesAdmin();
+  await loadCategories();
+};
+
+window.openDeleteCat = function(id) {
+  pendingDeleteCatId = id;
+  document.getElementById('del-cat-modal').classList.add('show');
+};
+
+window.confirmDeleteCategory = async function() {
+  await deleteDoc(doc(db,'categories',pendingDeleteCatId));
+  closeModal('del-cat-modal');
+  await loadCategoriesAdmin();
+  await loadCategories();
+};
+
+// ═══════════════════════════════════════════════════════════════
+// ADMIN: Year-end reset
+// ═══════════════════════════════════════════════════════════════
+window.openResetModal = function() {
+  document.getElementById('reset-confirm-input').value = '';
+  hideAlert('reset-error');
+  document.getElementById('reset-modal').classList.add('show');
+};
+
+window.confirmReset = async function() {
+  const val = document.getElementById('reset-confirm-input').value.trim();
+  if (val !== 'RESET') { showAlert('reset-error', 'Type RESET exactly to confirm.'); return; }
+
+  const year = new Date().getFullYear();
+  const archiveCol = `fines_archive_${year}`;
+
+  try {
+    const snap = await getDocs(collection(db,'fines'));
+    const batch = writeBatch(db);
+
+    snap.forEach(d => {
+      const archRef = doc(collection(db, archiveCol), d.id);
+      batch.set(archRef, d.data());
+      batch.delete(doc(db,'fines',d.id));
+    });
+
+    await batch.commit();
+    closeModal('reset-modal');
+    alert(`Done. ${snap.size} fine records archived to "${archiveCol}".`);
+    await loadAllFines();
+  } catch(err) {
+    console.error(err);
+    showAlert('reset-error', 'Reset failed. Please try again.');
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════
+// Logout
+// ═══════════════════════════════════════════════════════════════
+window.logout = async function() {
+  await signOut(auth);
+  sessionStorage.clear();
+  window.location.href = 'login.html';
+};
+
+// ═══════════════════════════════════════════════════════════════
+// INQUIRIES — Admin: load all
+// ═══════════════════════════════════════════════════════════════
+
+let currentInquiryFilter = 'all';
+
+window.filterInquiries = function(status) {
+  currentInquiryFilter = status;
+  loadAllInquiries();
+};
+
+async function loadAllInquiries() {
+  const body = document.getElementById('all-inquiries-body');
+  body.innerHTML = '<tr><td colspan="8" class="loading">Loading...</td></tr>';
+
+  const snap = await getDocs(query(collection(db,'inquiries'), orderBy('created_at','desc')));
+
+  let total = snap.docs.length;
+
+let pending = snap.docs.filter(d => d.data().status === 'pending').length;
+
+let contacted = snap.docs.filter(d => d.data().status === 'contacted').length;
+
+let admitted = snap.docs.filter(d => d.data().status === 'admitted').length;
+
+let rejected = snap.docs.filter(d => d.data().status === 'rejected').length;
+
+document.getElementById('stat-total').textContent = total;
+document.getElementById('stat-pending').textContent = pending;
+document.getElementById('stat-contacted').textContent = contacted;
+document.getElementById('stat-admitted').textContent = admitted;
+document.getElementById('stat-rejected').textContent = rejected;
+if (snap.empty) {
+  body.innerHTML = '<tr><td colspan="8" class="empty">No inquiries yet.</td></tr>';
+  return;
+}
+
+const docs = currentInquiryFilter === 'all'
+  ? snap.docs
+  : snap.docs.filter(d => d.data().status === currentInquiryFilter);
+
+body.innerHTML = docs.map(d => {
+  const i = d.data();
+
+  const date = i.created_at?.toDate
+    ? i.created_at.toDate().toLocaleDateString('en-IN', {
+        day:'numeric',
+        month:'short',
+        year:'numeric'
+      })
+      : '—';
+
+    return `<tr>
+      <td><strong>${i.child_name}</strong></td>
+      <td>${i.apply_class}</td>
+      <td>${i.parent_name}</td>
+      <td style="font-family:var(--mono)">${i.parent_phone}</td>
+      <td>${date}</td>
+      <td>${i.assigned_name || '<span style="color:var(--muted)">—</span>'}</td>
+      <td><span class="status-pill pill-${i.status}">${i.status}</span></td>
+      <td>
+        <button class="btn btn-ghost btn-sm"
+          onclick="openAssignModal('${d.id}','${i.child_name}')">
+          ${i.assigned_name ? 'Reassign' : 'Assign'}
+        </button>
+
+        <button class="btn btn-danger btn-sm"
+          onclick="deleteInquiry('${d.id}','${i.child_name}')">
+          Delete
+        </button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ─── Assign modal ─────────────────────────────────────────────
+let pendingAssignInquiryId = null;
+
+window.openAssignModal = async function(inquiryId, childName) {
+  pendingAssignInquiryId = inquiryId;
+  document.getElementById('assign-inquiry-sub').textContent =
+    `Assign a teacher to follow up on inquiry for ${childName}.`;
+  hideAlert('assign-error');
+
+  // Populate teacher dropdown
+  const sel = document.getElementById('assign-teacher-sel');
+  sel.innerHTML = '<option value="">Select teacher</option>';
+  const snap = await getDocs(query(collection(db,'users'), orderBy('name')));
+  snap.forEach(d => {
+    const u = d.data();
+    if (u.role !== 'admin') {
+      sel.innerHTML += `<option value="${d.id}">${u.name} (${u.role.replace('_',' ')})</option>`;
+    }
+  });
+
+  document.getElementById('assign-inquiry-modal').classList.add('show');
+};
+
+window.confirmAssign = async function() {
+  const sel        = document.getElementById('assign-teacher-sel');
+  const teacherId  = sel.value;
+  const teacherName = sel.options[sel.selectedIndex]?.text;
+
+  if (!teacherId) { showAlert('assign-error','Please select a teacher.'); return; }
+
+  await updateDoc(doc(db,'inquiries', pendingAssignInquiryId), {
+    assigned_to:   teacherId,
+    assigned_name: teacherName.split(' (')[0],
+    status:        'pending'
+  });
+
+  closeModal('assign-inquiry-modal');
+  await loadAllInquiries();
+};
+
+// ═══════════════════════════════════════════════════════════════
+// INQUIRIES — Teacher: my assigned inquiries
+// ═══════════════════════════════════════════════════════════════
+async function loadMyInquiries() {
+  const el = document.getElementById('my-inquiries-list');
+
+  const snap = await getDocs(query(
+    collection(db,'inquiries'),
+    where('assigned_to','==', currentUser.uid),
+    orderBy('created_at','desc')
+  ));
+
+  if (snap.empty) {
+    el.innerHTML = '<div class="empty">No inquiries assigned to you yet.</div>';
+    updateInquiryBadge(0);
+    return;
+  }
+
+  const pending = snap.docs.filter(d => d.data().status === 'pending').length;
+  updateInquiryBadge(pending);
+
+  el.innerHTML = snap.docs.map(d => {
+    const i    = d.data();
+    const date = i.created_at?.toDate
+      ? i.created_at.toDate().toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })
+      : '—';
+    const noteHtml = i.follow_up_note
+      ? `<div style="font-size:12px;color:var(--muted);margin-top:4px;font-style:italic">Note: ${i.follow_up_note}</div>`
+      : '';
+    return `<div style="padding:14px 0;border-bottom:1px solid var(--border)">
+      <div style="display:flex;justify-content:space-between;align-items:start;gap:12px">
+        <div>
+          <div style="font-size:14px;font-weight:600">${i.child_name} <span style="font-weight:400;color:var(--muted)">· Class ${i.apply_class}</span></div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">${i.parent_name} &nbsp;·&nbsp; <span style="font-family:var(--mono)">${i.parent_phone}</span></div>
+          ${i.note ? `<div style="font-size:12px;margin-top:4px">${i.note}</div>` : ''}
+          ${noteHtml}
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">${date}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+          <span class="status-pill pill-${i.status}">${i.status}</span>
+          <button class="btn btn-ghost btn-sm" onclick="openUpdateModal('${d.id}','${i.child_name}')">Update</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('') + '<div style="height:8px"></div>';
+}
+
+function updateInquiryBadge(count) {
+  const tabs = document.querySelectorAll('.tab');
+  tabs.forEach(t => {
+    if (t.textContent.includes('My Inquiries')) {
+      const existing = t.querySelector('.tab-badge');
+      if (existing) existing.remove();
+      if (count > 0) {
+        t.innerHTML = `My Inquiries <span class="tab-badge">${count}</span>`;
+      }
+    }
+  });
+}
+
+// ─── Update status modal ──────────────────────────────────────
+let pendingUpdateInquiryId = null;
+
+window.openUpdateModal = function(inquiryId, childName) {
+  pendingUpdateInquiryId = inquiryId;
+  document.getElementById('update-inquiry-sub').textContent =
+    `Update follow-up status for ${childName}.`;
+  document.getElementById('update-note').value = '';
+  hideAlert('update-error');
+  document.getElementById('update-inquiry-modal').classList.add('show');
+};
+
+window.confirmUpdateInquiry = async function() {
+  const status = document.getElementById('update-status-sel').value;
+  const note   = document.getElementById('update-note').value.trim();
+
+  await updateDoc(doc(db,'inquiries', pendingUpdateInquiryId), {
+    status,
+    follow_up_note: note || null,
+    updated_at: serverTimestamp()
+  });
+
+  closeModal('update-inquiry-modal');
+  await loadMyInquiries();
+};
+
+window.deleteInquiry = async function(id, childName) {
+  const ok = confirm(`Delete inquiry for "${childName}"?`);
+
+  if (!ok) return;
+
+  try {
+    await deleteDoc(doc(db, 'inquiries', id));
+    await loadAllInquiries();
+    alert('Inquiry deleted successfully');
+  } catch (err) {
+    console.error(err);
+    alert('Failed to delete inquiry');
+  }
+};
+// ═══════════════════════════════════════════════════════════════
+// Helpers
+// ═══════════════════════════════════════════════════════════════
+function showAlert(id, msg) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (msg) el.textContent = msg;
+  el.classList.add('show');
+}
+function hideAlert(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.remove('show');
+}
+window.closeModal = function(id) {
+  document.getElementById(id).classList.remove('show');
+};
+</script>
+
+</body>
+</html>

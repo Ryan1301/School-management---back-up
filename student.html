@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fine Record – Student Lookup</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F5F3EF;
+  --surface: #FFFFFF;
+  --border: #E0DDD8;
+  --text: #1A1A1A;
+  --muted: #7A7670;
+  --accent: #2B5BA8;
+  --accent-bg: #EEF3FB;
+  --danger: #C0392B;
+  --danger-bg: #FDECEA;
+  --success: #1E7A4A;
+  --success-bg: #EAFAF1;
+  --warning-bg: #FEF9E7;
+  --warning: #9A6F00;
+  --font: 'IBM Plex Sans', sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-icon {
+  width: 32px; height: 32px;
+  background: var(--accent);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.header-icon svg { width: 18px; height: 18px; }
+.header-title { font-size: 15px; font-weight: 600; }
+.header-sub { font-size: 12px; color: var(--muted); font-family: var(--mono); margin-top: 1px; }
+
+.container { max-width: 560px; margin: 0 auto; padding: 28px 20px; }
+
+.lookup-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.card-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+
+label { font-size: 12px; font-weight: 500; color: var(--muted); }
+
+select, input {
+  font-family: var(--font);
+  font-size: 14px;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+
+select:focus, input:focus {
+  border-color: var(--accent);
+  background: var(--surface);
+}
+
+.btn {
+  width: 100%;
+  padding: 11px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: opacity 0.15s;
+}
+.btn:hover { opacity: 0.9; }
+.btn:active { opacity: 0.8; }
+
+.result-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.student-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.student-name { font-size: 16px; font-weight: 600; }
+.student-meta { font-size: 12px; color: var(--muted); font-family: var(--mono); margin-top: 2px; }
+
+.total-badge { text-align: right; }
+.total-label { font-size: 11px; color: var(--muted); }
+.total-amount { font-size: 20px; font-weight: 600; color: var(--danger); font-family: var(--mono); }
+
+.fine-item {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: start;
+}
+.fine-item:last-child { border-bottom: none; }
+
+.fine-category { font-size: 14px; font-weight: 500; }
+.fine-meta { font-size: 12px; color: var(--muted); margin-top: 3px; }
+
+.fine-note {
+  font-size: 12px;
+  color: var(--text);
+  background: var(--warning-bg);
+  border-left: 2px solid var(--warning);
+  padding: 5px 8px;
+  border-radius: 0 4px 4px 0;
+  margin-top: 6px;
+  font-style: italic;
+}
+
+.fine-right { text-align: right; }
+.fine-amount { font-size: 14px; font-weight: 600; font-family: var(--mono); color: var(--danger); }
+
+.status-pill {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 99px;
+  margin-top: 4px;
+  letter-spacing: 0.04em;
+}
+.status-active { background: var(--danger-bg); color: var(--danger); }
+.status-refunded { background: var(--success-bg); color: var(--success); }
+
+.empty-state {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.summary-row {
+  padding: 14px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg);
+}
+.summary-label { font-size: 13px; color: var(--muted); }
+.summary-value { font-size: 15px; font-weight: 600; font-family: var(--mono); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+      <polyline points="14 2 14 8 20 8"/>
+      <line x1="16" y1="13" x2="8" y2="13"/>
+      <line x1="16" y1="17" x2="8" y2="17"/>
+    </svg>
+  </div>
+  <div>
+    <div class="header-title">Fine Record</div>
+    <div class="header-sub">student lookup · no login required</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="lookup-card">
+    <div class="card-label">Enter your details</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Class</label>
+        <select id="sel-class">
+          <option value="">Select</option>
+          <option>5</option><option>6</option><option>7</option>
+          <option>8</option><option>9</option><option>10</option>
+          <option>11</option><option>12</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Division</label>
+        <select id="sel-div">
+          <option value="">Select</option>
+          <option>A</option><option>B</option><option>C</option><option>D</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Roll Number</label>
+        <input type="number" id="inp-roll" placeholder="e.g. 12" min="1"/>
+      </div>
+      <div class="form-group">
+        <label>Date of Birth</label>
+        <input type="date" id="inp-dob"/>
+      </div>
+    </div>
+    <button class="btn" onclick="lookup()">Check Fine Record</button>
+  </div>
+
+  <div id="result"></div>
+
+</div>
+
+<script type="module">
+  // ─── Firebase config ───────────────────────────────────────────────
+  // TODO: Replace with your actual Firebase project config
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+  apiKey: "AIzaSyAnWCY8qYh2877JTB1_5p6D8XxCHvWLbnk",
+  authDomain: "school-data-base-61e1d.firebaseapp.com",
+  projectId: "school-data-base-61e1d",
+  storageBucket: "school-data-base-61e1d.firebasestorage.app",
+  messagingSenderId: "829460545981",
+  appId: "1:829460545981:web:4fd764fb6fbbaee0a052d4"
+};
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // ─── Lookup function ───────────────────────────────────────────────
+  window.lookup = async function () {
+    const cls    = document.getElementById('sel-class').value;
+    const div    = document.getElementById('sel-div').value;
+    const roll   = document.getElementById('inp-roll').value.trim();
+    const dob    = document.getElementById('inp-dob').value;
+    const out    = document.getElementById('result');
+
+    if (!cls || !div || !roll || !dob) {
+      out.innerHTML = `<div class="result-card"><div class="empty-state">Please fill in all fields.</div></div>`;
+      return;
+    }
+
+    out.innerHTML = `<div class="result-card"><div class="empty-state">Looking up...</div></div>`;
+
+    try {
+      // 1. Find student
+      const sQuery = query(
+        collection(db, 'students'),
+        where('class', '==', cls),
+        where('division', '==', div),
+        where('roll_no', '==', roll),
+        where('dob', '==', dob)
+      );
+      const sSnap = await getDocs(sQuery);
+
+      if (sSnap.empty) {
+        out.innerHTML = `<div class="result-card"><div class="empty-state">No record found. Check your details and try again.</div></div>`;
+        return;
+      }
+
+      const studentDoc = sSnap.docs[0];
+      const student = { id: studentDoc.id, ...studentDoc.data() };
+
+      // 2. Get fines for this student
+      const fQuery = query(
+        collection(db, 'fines'),
+        where('student_id', '==', student.id)
+      );
+      const fSnap = await getDocs(fQuery);
+      const fines = fSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+      // Sort newest first
+      fines.sort((a, b) => b.created_at?.seconds - a.created_at?.seconds);
+
+      renderResult(student, fines);
+
+    } catch (err) {
+      out.innerHTML = `<div class="result-card"><div class="empty-state">Something went wrong. Please try again.</div></div>`;
+      console.error(err);
+    }
+  };
+
+  // ─── Render result ─────────────────────────────────────────────────
+  function renderResult(student, fines) {
+    const out = document.getElementById('result');
+    const active = fines.filter(f => f.status === 'active');
+    const total  = active.reduce((a, f) => a + (f.amount || 0), 0);
+
+    const fineRows = fines.length === 0
+      ? `<div class="empty-state">No fines on record. Keep it up!</div>`
+      : fines.map(f => {
+          const date = f.created_at?.toDate
+            ? f.created_at.toDate().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+            : '—';
+          const amountHtml = f.status === 'refunded'
+            ? `<s>₹${f.amount}</s>`
+            : `₹${f.amount}`;
+          const noteHtml = f.note
+            ? `<div class="fine-note">${f.note}</div>`
+            : '';
+          const refundNote = f.status === 'refunded' && f.refund_reason
+            ? `<div class="fine-note" style="border-color:var(--success)">Refund: ${f.refund_reason}</div>`
+            : '';
+          return `
+            <div class="fine-item">
+              <div>
+                <div class="fine-category">${f.category_name || '—'}</div>
+                <div class="fine-meta">by ${f.teacher_name || '—'} &nbsp;·&nbsp; ${date}</div>
+                ${noteHtml}
+                ${refundNote}
+              </div>
+              <div class="fine-right">
+                <div class="fine-amount">${amountHtml}</div>
+                <div><span class="status-pill status-${f.status}">${f.status === 'refunded' ? 'Refunded' : 'Active'}</span></div>
+              </div>
+            </div>`;
+        }).join('');
+
+    out.innerHTML = `
+      <div class="result-card">
+        <div class="student-header">
+          <div>
+            <div class="student-name">${student.name}</div>
+            <div class="student-meta">Class ${student.class}${student.division} &nbsp;·&nbsp; Roll No. ${student.roll_no}</div>
+          </div>
+          <div class="total-badge">
+            <div class="total-label">Total due</div>
+            <div class="total-amount">₹${total}</div>
+          </div>
+        </div>
+        <div class="fine-list">${fineRows}</div>
+        <div class="summary-row">
+          <span class="summary-label">${fines.length} fine${fines.length !== 1 ? 's' : ''} · ${active.length} active</span>
+          <span class="summary-value" style="color:${total > 0 ? 'var(--danger)' : 'var(--success)'}">₹${total} due</span>
+        </div>
+      </div>`;
+  }
+</script>
+
+</body>
+</html>
